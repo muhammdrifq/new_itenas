@@ -25,7 +25,7 @@ class tb_ProdiController extends Controller
      */
     public function create()
     {
-        //
+        return view('koordinator.prodi.create');
     }
 
     /**
@@ -36,51 +36,77 @@ class tb_ProdiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nama_prodi' => 'required',
+
+        ]);
+
+        $prodi = new tb_prodi();
+        $prodi->nama_prodi = $request->nama_prodi;
+        $prodi->save();
+        return redirect()->route('koordinator.prodi.index')
+            ->with('Sukses', 'Data Prodi berhasil dibuat!');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\tb_prodi  $tb_prodi
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(tb_prodi $tb_prodi)
+    public function show($id)
     {
-        //
+        $prodi = tb_prodi::findOrFail($id);
+        return view('koordinator.prodi.show', compact('prodi'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\tb_prodi  $tb_prodi
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(tb_prodi $tb_prodi)
+    public function edit($id)
     {
-        //
+        $prodi = tb_prodi::findOrFail($id);
+        return view('koordinator.prodi.edit', compact('prodi'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\tb_prodi  $tb_prodi
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, tb_prodi $tb_prodi)
+    public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'nama_prodi' => 'required',
+
+        ]);
+
+        $prodi = tb_prodi::findOrFail($id);
+        $prodi->nama_prodi = $request->nama_prodi;
+        $prodi->save();
+        return redirect()->route('koordinator.prodi.index')
+            ->with('Sukses', 'Data prodi berhasil diedit!');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\tb_prodi  $tb_prodi
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(tb_prodi $tb_prodi)
+    public function destroy($id)
     {
-        //
+        $prodi = tb_prodi::find($id);
+
+        if (!tb_prodi::destroy($id)) {
+            return redirect()->back();
+        }
+        return redirect()->route('prodi.index')
+            ->with('success', 'Data berhasil dihapus!');
     }
 }

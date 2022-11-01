@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\tb_koordinator;
+use App\Models\Role;
+use App\Models\User;
 use App\Models\tb_prodi;
 use Illuminate\Http\Request;
+use App\Models\tb_koordinator;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class tb_koordinatorController extends Controller
 {
@@ -38,15 +42,45 @@ class tb_koordinatorController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_prodi' => 'required',
+            'name' => 'required|string|unique:users',
+            'email' => 'required|string|email:dns|unique:users',
+            'password' => 'required|min:8|',
+            'password_confirmation' => 'min:8:|required_with:password|same:password'
 
         ]);
 
-        $prodi = new tb_prodi();
-        $prodi->nama_prodi = $request->nama_prodi;
-        $prodi->save();
+        $message = [
+            'required' => 'Data tidak boleh kosong',
+            'unique' => 'User Sudah ada!',
+            'email' => 'Email maksimal :max karakter',
+            'min' => 'Password minimam :min karakter',
+            'same' => 'Konfirmasi Password tidak sama dengan Password',
+        ];
+
+        $validation = Validator::make($request->all(), $message);
+        if ($validation->fails()) {
+            session()->put('danger', 'Data yang anda input tidak valid, silahkan di ulang');
+            return back()->withErrors($validation)->withInput();
+        }
+
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->save();
+        $koorRole = Role::where('name', 'koordinator')->first();
+        $user->attachRole($koorRole);
+
+
+        $koordinator = new tb_koordinator();
+        $koordinator->id_user = $user->id;
+        $koordinator->id_prodi = "-";
+        $koordinator->nomorinduk = "-";
+        $koordinator->no_telepon = "-";
+        $koordinator->profile_pict = "-";
         return redirect()->route('koordinator.prodi.index')
-            ->with('Sukses', 'Data Prodi berhasil dibuat!');
+                ->with('Sukses', 'Akun Koordinator berhasil dibuat!');
+
     }
 
     /**
@@ -57,7 +91,7 @@ class tb_koordinatorController extends Controller
      */
     public function show($id)
     {
-        $prodi = tb_prodi::findOrFail($id);
+        $koordinator = tb_koordinator::findOrFail($id);
         return view('koordinator.prodi.show', compact('prodi'));
     }
 
@@ -69,7 +103,7 @@ class tb_koordinatorController extends Controller
      */
     public function edit($id)
     {
-        $prodi = tb_prodi::findOrFail($id);
+        $koordinator = tb_koordinator::findOrFail($id);
         return view('koordinator.prodi.edit', compact('prodi'));
     }
 
@@ -80,10 +114,12 @@ class tb_koordinatorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateAkun(Request $request, $id)
     {
         $validated = $request->validate([
-            'nama_prodi' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email:dns|max:255',
+            'password' => 'required_|min:8|confirmed'
 
         ]);
 

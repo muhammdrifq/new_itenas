@@ -4,16 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use \Illuminate\Database\Eloquent\SoftDeletes;
 
-class tb_koordinator extends Model
+class tb_mahasiswa extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $dates = ['deleted_at'];
-    public $timestamps = true;
 
     public function user()
     {
@@ -22,9 +18,20 @@ class tb_koordinator extends Model
 
     public function prodi()
     {
-
         return $this->belongsTo(tb_prodi::class, 'id_prodi');
     }
+
+    public function kelas()
+    {
+        return $this->belongsTo(tb_kelas::class, 'id_kelas');
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(tb_semester::class, 'id_semester');
+    }
+
+    
 
     public function gambar()
     {
@@ -41,6 +48,4 @@ class tb_koordinator extends Model
             return unlink(public_path('images/profile_pict/koordinator/' . $this->profile_pict));
         }
     }
-
-
 }

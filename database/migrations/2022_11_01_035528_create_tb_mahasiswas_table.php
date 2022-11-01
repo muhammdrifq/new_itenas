@@ -13,14 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tb_koordinators', function (Blueprint $table) {
+        Schema::create('tb_mahasiswas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_user')->unsigned();
-            $table->foreignId('id_prodi')->unsigned()->nullable();
-            $table->string('nomorinduk')->unique()->nullable();
-            $table->string('no_telepon')->nullable();
+            $table->foreignId('id_prodi')->unsigned();
+            $table->foreignId('id_kelas')->unsigned();
+            $table->foreignId('id_semester')->unsigned();
+            $table->string('nim')->unique();
             $table->string('profile_pict')->nullable();
             $table->foreign('id_user')->references('id')->on('users');
+            $table->foreign('id_prodi')->references('id')->on('tb_prodis');
+            $table->foreign('id_kelas')->references('id')->on('tb_kelas');
+            $table->foreign('id_semester')->references('id')->on('tb_semesters');
             $table->timestamps();
         });
     }
@@ -32,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tb_koordinators');
+        Schema::dropIfExists('tb_mahasiswas');
     }
 };
