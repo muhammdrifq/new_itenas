@@ -13,15 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tb_dosens', function (Blueprint $table) {
+        Schema::create('asign_kelas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_user')->unsigned();
-            $table->foreignId('id_prodi')->unsigned();
-            $table->string('nip')->unique();
-            $table->string('profile_pict')->nullable();
+            $table->foreignId('id_kelas')->unsigned();
             $table->foreign('id_user')->references('id')->on('users');
-            $table->foreign('id_prodi')->references('id')->on('tb_prodis');
+            $table->foreign('id_kelas')->references('id')->on('tb_kelas');
             $table->timestamps();
+            
         });
     }
 
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tb_dosens');
+        //
     }
 };

@@ -21,11 +21,6 @@ class tb_mahasiswa extends Model
         return $this->belongsTo(tb_prodi::class, 'id_prodi');
     }
 
-    public function kelas()
-    {
-        return $this->belongsTo(tb_kelas::class, 'id_kelas');
-    }
-
     public function semester()
     {
         return $this->belongsTo(tb_semester::class, 'id_semester');

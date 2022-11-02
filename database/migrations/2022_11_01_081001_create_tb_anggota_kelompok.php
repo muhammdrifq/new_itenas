@@ -13,14 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tb_dosens', function (Blueprint $table) {
+        Schema::create('tb_anggota_kelompok', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->unsigned();
-            $table->foreignId('id_prodi')->unsigned();
-            $table->string('nip')->unique();
-            $table->string('profile_pict')->nullable();
-            $table->foreign('id_user')->references('id')->on('users');
-            $table->foreign('id_prodi')->references('id')->on('tb_prodis');
+            $table->foreignId('id_mahasiswa')->unsigned();
+            $table->foreignId('id_kelompok')->unsigned();
+            $table->foreign('id_kelompok')->references('id')->on('tb_kelompok');
+            $table->foreign('id_mahasiswa')->references('id')->on('tb_mahasiswas');
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tb_dosens');
+        Schema::dropIfExists('tb_anggota_kelompok');
     }
 };
