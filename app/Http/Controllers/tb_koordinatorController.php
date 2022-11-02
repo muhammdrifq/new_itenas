@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\tb_prodi;
 use Illuminate\Http\Request;
 use App\Models\tb_koordinator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -44,7 +45,7 @@ class tb_koordinatorController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|unique:users',
             'email' => 'required|string|email:dns|unique:users',
-            'password' => 'required|min:8|',
+            'password' => 'required|min:8',
             'password_confirmation' => 'min:8:|required_with:password|same:password'
 
         ]);
@@ -92,7 +93,7 @@ class tb_koordinatorController extends Controller
     public function show($id)
     {
         $koordinator = tb_koordinator::findOrFail($id);
-        return view('koordinator.prodi.show', compact('prodi'));
+        return view('koordinator.koor.show', compact('prodi'));
     }
 
     /**
@@ -104,7 +105,7 @@ class tb_koordinatorController extends Controller
     public function edit($id)
     {
         $koordinator = tb_koordinator::findOrFail($id);
-        return view('koordinator.prodi.edit', compact('prodi'));
+        return view('koordinator.koor.edit', compact('prodi'));
     }
 
     /**
@@ -114,20 +115,82 @@ class tb_koordinatorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function updateAkun(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
+        $rules =[
             'name' => 'required|string|max:255',
             'email' => 'required|string|email:dns|max:255',
-            'password' => 'required_|min:8|confirmed'
+            'password' => 'required_|min:8',
+            'password_confirmation' => 'required_with:'
 
-        ]);
+        ];
 
-        $prodi = tb_prodi::findOrFail($id);
-        $prodi->nama_prodi = $request->nama_prodi;
-        $prodi->save();
+        $message = [
+            'required' => 'Data tidak boleh kosong',
+            'unique' => 'User Sudah ada!',
+            'email' => 'Email maksimal :max karakter',
+            'min' => 'Password minimam :min karakter',
+            'same' => 'Konfirmasi Password tidak sama dengan Password',
+        ];
+
+        $koordinator = tb_koordinator::findOrFail($id);
+
+        $validation = Validator::make($request->all(), $rules, $message);
+        if ($validation->fails()) {
+            session()->put('danger', 'Data yang anda input tidak valid, silahkan di ulang');
+            return back()->withErrors($validation)->withInput();
+        }
+
+        $user = User::find($koordinator->user->$id);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->save();
+
         return redirect()->route('koordinator.prodi.index')
             ->with('Sukses', 'Data prodi berhasil diedit!');
+    }
+
+    public function profile()
+    {
+        $koordinator = tb_koordinator::where('id_user', Auth::user()->id)->get();
+        foreach ($koordinator as $koordinator) {
+            $koordinator;
+        }
+        return view('koordinator.profile.index', compact('koordinator'));
+    }
+
+    public function profileEdit(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required',
+            'prodi' => 'required',
+            'nomorinduk' => 'required',
+            'no_telepon' => 'required',
+            'profile_pict' => 'required',
+        ]);
+
+        $koordinator = tb_koordinator::find($id);
+        $koordinator->prodi = $request->prodi;
+        $koordinator->nomorinduk = $request->nomorinduk;
+        $koordinator->no_telepon = $request->no_telepon;
+        
+        if ($request->hasFile('profile_pict'))
+        {
+            $koordinator->deleteGambar();
+            $image = $request->profile_pict;
+            $name = rand(1000, 9999) . $image->getClientOriginalName();
+            $image->move('images/profile_pict/koordinator', $name);
+            $koordinator->profile_pict = $name;
+        }
+
+        $koordinator->save();
+
+        $user = User::findOrFail($koordinator->user->id);
+        $user->name = $request->name;
+        $user->save();
+        session()->put('success', 'Data Berhasil Di Edit');
+        return redirect()->back();
     }
 
     /**

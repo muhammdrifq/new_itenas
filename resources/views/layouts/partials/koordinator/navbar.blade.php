@@ -1,3 +1,11 @@
+<?php
+use App\Models\tb_koordinator;
+
+$koordinator = tb_koordinator::where('id_user', Auth::user()->id)->first();
+
+?>
+
+
 <nav class="main-header navbar navbar-expand navbar-white navbar-light" style="background-color: #F69000;">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
@@ -23,7 +31,7 @@
         <li class="nav-item dropdown hidden-caret">
             <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
                 <div class="avatar-sm float-right">
-                 @if ($koordinator->profile_pict != null )
+                 @if ($koordinator->profile_pict != null)
                     <img src="{{ $koordinator->gambar() }}" alt="Profile"
                     class="avatar-img rounded-circle">
                      

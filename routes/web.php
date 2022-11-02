@@ -30,7 +30,7 @@ Route::group(['prefix' => 'koordinator',
             function(){
 
                 route::get('/', function(){
-                    return view('layouts.admin');
+                    return view('home');
                 });
 
                 route::resource('prodi', tb_ProdiController::class);    
