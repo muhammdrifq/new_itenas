@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('tb_semesters', function (Blueprint $table) {
             $table->id();
-            $table->string('semester');
+            $table->string('tahun');
+            $table->string('tipe');
             $table->timestamps();
         });
     }
